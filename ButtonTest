@@ -1,0 +1,45 @@
+import pygame
+ 
+pygame.init()
+screen = pygame.display.set_mode((600, 400))
+screen.fill((255,255,255))
+ 
+def button(screen, position, text): #constructor
+    font = pygame.font.SysFont("Arial", 50)
+    text_render = font.render(text, 1, (255, 0, 0)) #where the text goes
+    x, y, w , h = text_render.get_rect() #gets the size of the button
+    x, y = position
+    padding = 5;
+    pygame.draw.line(screen, "black", (x - padding, y - padding), (x + w +padding, y - padding), 5) #draws the top border
+    pygame.draw.line(screen, "black", (x - padding, y - 2 - padding), (x - padding, y + h + padding), 5) #draws the left border
+    pygame.draw.line(screen, "black", (x - padding, y + h + padding - 2), (x + w + padding , y + h + padding - 2), 5) #draws the bottom boder
+    pygame.draw.line(screen, (50, 50, 50), (x + w + padding - 2, y+h + padding), [x + w + padding - 2, y - padding], 5) #draws the right border
+    pygame.draw.rect(screen, "white", (x, y, w , h)) #draw the button body
+    return screen.blit(text_render, (x, y)) 
+ 
+def start(): #event for start button
+    print("Ok, let's go")
+ 
+def menu():#mainloop
+    """ This is the menu that waits you to click the s key to start """
+    b1 = button(screen, (100, 100), "Quit") #create the quit button
+    b2 = button(screen, (500, 300), "Start") #create the start button
+    while True:
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                key_to_start = event.key == pygame.K_s or event.key == pygame.K_RIGHT or event.key == pygame.K_UP
+                if key_to_start:
+                    start()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if b1.collidepoint(pygame.mouse.get_pos()):
+                    pygame.quit()
+                elif b2.collidepoint(pygame.mouse.get_pos()):
+                    start()
+        pygame.display.update()
+    pygame.quit()
+ 
+menu()
