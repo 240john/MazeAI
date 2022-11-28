@@ -12,11 +12,11 @@ def create_maze():
     level[x][y] = 'X'
     level[endX][endY] = 'X'
     foundX = False
-    list1 = [-1,1,1,1]
-    list2 = [-1,-1,-1,1]
+    list1 = [-1,1,1]
+    list2 = [-1,-1,1]
     
     while not foundX:
-        # select cell next to currentCell and ensure it's inbounds
+        # select cell next to the current cell and ensure it's inbounds
         while True:
             if randrange(2) == 0:
                 if x < endX:
@@ -35,6 +35,7 @@ def create_maze():
                     y = y + num
                     break   
 
+        # change the maze
         level[x][y] = ' '
 
         # check to see if we found 'X' in the last row
