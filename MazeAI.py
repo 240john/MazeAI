@@ -15,13 +15,37 @@ class Wall(object):
 def Maze_generation():
     gen = 0
     popSize = 200
-    stepCount = 60 # initial amount of steps allowed - increases over time
+    stepCount = 10 # initial amount of steps allowed - increases
+                   # with each generation
+    startEnd = np.empty((2,2))
+    startEndIter = 0
+
+    # Holds the level layout in a list of strings.
+    level = maze.create_maze()
+
+    # Parse the level string above. W = wall, X = exit
+    x = y = 0
+    for row in level:
+        for col in row:
+            if col == "W":
+                Wall((x, y))
+            if col == "X":
+                end_rect = pygame.Rect(x, y, 16, 16)
+                startEnd[startEndIter][0] = x
+                startEnd[startEndIter][1] = y
+                startEndIter + 1
+            x += 16
+        y += 16
+        x = 0
+
+    print('start: ', startEnd[0][0], startEnd[0][1])
+    print('end: ', startEnd[1][0], startEnd[1][1])
 
     # two arrays to hold all values of current rectangles, currently values all are 0
     RectanglesX = np.empty(popSize, dtype=int) 
-    RectanglesX = [0 for i in range(popSize)] 
+    RectanglesX = [startEnd[0][0] for i in range(popSize)] 
     RectanglesY = np.empty(popSize, dtype=int)
-    RectanglesY = [0 for i in range(popSize)]
+    RectanglesY = [startEnd[0][1] for i in range(popSize)]
 
     #array for rectangle colors
     RectanglesColor = np.empty(popSize, dtype=int)
@@ -38,31 +62,11 @@ def Maze_generation():
 
     background = pygame.display.set_mode((mazeWidth,mazeHeight))
 
-    # Holds the level layout in a list of strings.
-    level = maze.create_maze()
-
-    # Parse the level string above. W = wall, E = exit
-    x = y = 0
-    for row in level:
-        for col in row:
-            if col == "W":
-                Wall((x, y))
-            if col == "X":
-                end_rect = pygame.Rect(x, y, 16, 16)
-            x += 16
-        y += 16
-        x = 0
-
-    rectangle = ((10,10), (4,4))
-    numb1 = 10
-    numb2 = 10
-
     background.fill((255, 255, 255))
 
     pygame.init()
     
-    # displaying a window of height
-    # 500 and width 400
+    # displaying a window
     pygame.display.set_mode((mazeWidth, mazeHeight))
     
     # Setting name for window
@@ -85,7 +89,7 @@ def Maze_generation():
             if event.type == pygame.QUIT:
                 running = False
 
-    #--Random movement for ALL rectangles, values are randomed and added to arrays on lines 14-16
+        # Random movement for ALL rectangles, values are randomed and added to arrays on lines 14-16
         for populationCounter in range(popSize):
             list = [-1,0,1]
             RandNum1 = (random.choice(list))
@@ -98,29 +102,16 @@ def Maze_generation():
             RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
             
 
-    #---Previous random code for 1 Rectangle-----------------------
-        #    list = [-1,0,1]
-        #    RandNum1 = (random.choice(list))
-        #    RandNum2 = (random.choice(list))
-        #    while numb1 + RandNum1 < 0 or numb1 + RandNum1 > 799:
-        #        RandNum1 = (random.choice(list))
-        #    while numb2 + RandNum2 < 0 or numb2 + RandNum2 > 799:
-        #        RandNum2 = (random.choice(list))
-        #    numb1 = numb1 + RandNum1
-        #    numb2 = numb2 + RandNum2
-    #---------------------------------------------------------------
-
-    #set background to white, then fill in rectangles following array
+        # set background to white, then fill in rectangles following array
         background.fill((255, 255, 255))
         for populationCounter in range(popSize):
             rectangle = ((RectanglesX[populationCounter],RectanglesY[populationCounter]), (4,4))
             pygame.draw.rect(background,(RectanglesColor[populationCounter]),rectangle,2)
-            #(50,100,250,255)
+
+        # draw walls
         for wall in walls:
             pygame.draw.rect(background, (0, 0, 0), wall.rect)
 
 
         pygame.display.flip()
-        time.sleep(.001) #edit to adjust speed
-
-#Maze_generation()
+        time.sleep(.001) # edit to adjust speed

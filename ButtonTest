@@ -23,7 +23,7 @@ def start(): #event for start button
     MazeAI.Maze_generation()
  
 def menu():#mainloop
-    """ This is the menu that waits you to click the s key to start """
+    # This is the menu that waits you to click the s key to start 
     b1 = button(screen, (100, 100), "Quit") #create the quit button
     b2 = button(screen, (500, 300), "Start") #create the start button
     while True:
