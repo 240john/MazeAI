@@ -9,7 +9,7 @@ def create_maze():
     y = 0
     endX = randrange(22)
     endY = 21
-    level[x][y] = 'X'
+    level[x][y] = 'S'
     level[endX][endY] = 'X'
     foundX = False
     list1 = [-1,1,1]

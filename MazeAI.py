@@ -6,34 +6,44 @@ import random
 import maze
 
 walls = [] # List to hold the walls
+ending = [] # list to hold the end
 
 class Wall(object):
-    def __init__(self, pos):
+    def __init__(self, pos, width):
         walls.append(self)
-        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+        self.rect = pygame.Rect(pos[0], pos[1], width, 16)
+
+class End(object):
+    def __init__(self, pos, width):
+        ending.append(self)
+        self.rect = pygame.Rect(pos[0], pos[1], width, 16)
 
 def Maze_generation():
     gen = 0
-    popSize = 200
+    popSize = 60
     stepCount = 10 # initial amount of steps allowed - increases
                    # with each generation
+    steps = 0 # amount of steps completed per generation
     startEnd = np.empty((2,2))
     startEndIter = 0
+    offset = 20 # used to bring maze away from edge
 
     # Holds the level layout in a list of strings.
     level = maze.create_maze()
 
-    # Parse the level string above. W = wall, X = exit
+    # Parse the level string above. W = wall, X = start/exit
     x = y = 0
     for row in level:
         for col in row:
             if col == "W":
-                Wall((x, y))
+                Wall((x+offset, y+offset),16)
+            if col == "S":
+                startEnd[0][0] = x+offset
+                startEnd[0][1] = y+offset
             if col == "X":
-                end_rect = pygame.Rect(x, y, 16, 16)
-                startEnd[startEndIter][0] = x
-                startEnd[startEndIter][1] = y
-                startEndIter + 1
+                End((x+14+offset,y+offset),2)
+                startEnd[1][0] = x+offset
+                startEnd[1][1] = y+offset
             x += 16
         y += 16
         x = 0
@@ -80,6 +90,26 @@ def Maze_generation():
     # keep game running till running is true
     while running:
     
+        # check to see if it's time to start a new generation
+        if steps == stepCount:
+            # calculate fitness of dots
+            # if dot is in collision with a wall fitness = 0
+
+            # save moves made by 5 best dots            
+            
+            # reset dots
+            RectanglesX = np.empty(popSize, dtype=int) 
+            RectanglesX = [startEnd[0][0] for i in range(popSize)] 
+            RectanglesY = np.empty(popSize, dtype=int)
+            RectanglesY = [startEnd[0][1] for i in range(popSize)]
+
+            # reset steps and increase stepCount
+            stepCount += 10
+            steps = 0
+
+            # mutate the moveset of the dots randomly while iterating through steps
+            
+
         # Check for event if user has pushed
         # any event in queue
         for event in pygame.event.get():
@@ -94,9 +124,9 @@ def Maze_generation():
             list = [-1,0,1]
             RandNum1 = (random.choice(list))
             RandNum2 = (random.choice(list))
-            while RectanglesX[populationCounter] + RandNum1 < 0 or RectanglesX[populationCounter] + RandNum1 > 799:
+            while RectanglesX[populationCounter] + RandNum1 < 20 or RectanglesX[populationCounter] + RandNum1 > 400:
                 RandNum1 = (random.choice(list))
-            while RectanglesY[populationCounter] + RandNum2 < 0 or RectanglesY[populationCounter] + RandNum2 > 799:
+            while RectanglesY[populationCounter] + RandNum2 < 20 or RectanglesY[populationCounter] + RandNum2 > 400:
                 RandNum2 = (random.choice(list))
             RectanglesX[populationCounter] = RectanglesX[populationCounter] + RandNum1
             RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
@@ -111,7 +141,10 @@ def Maze_generation():
         # draw walls
         for wall in walls:
             pygame.draw.rect(background, (0, 0, 0), wall.rect)
+        for end in ending:
+            pygame.draw.rect(background, (0, 255, 0), end.rect)
 
 
         pygame.display.flip()
         time.sleep(.001) # edit to adjust speed
+        steps += 1
