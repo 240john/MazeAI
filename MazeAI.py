@@ -25,7 +25,6 @@ def Maze_generation():
                    # with each generation
     steps = 0 # amount of steps completed per generation
     startEnd = np.empty((2,2))
-    startEndIter = 0
     offset = 20 # used to bring maze away from edge
 
     # Holds the level layout in a list of strings.
@@ -56,6 +55,8 @@ def Maze_generation():
     RectanglesX = [startEnd[0][0] for i in range(popSize)] 
     RectanglesY = np.empty(popSize, dtype=int)
     RectanglesY = [startEnd[0][1] for i in range(popSize)]
+    RectanglesDead = np.empty(popSize, dtype=bool) 
+    RectanglesDead = [False for i in range(popSize)]
 
     #array for rectangle colors
     RectanglesColor = np.empty(popSize, dtype=int)
@@ -102,6 +103,7 @@ def Maze_generation():
             RectanglesX = [startEnd[0][0] for i in range(popSize)] 
             RectanglesY = np.empty(popSize, dtype=int)
             RectanglesY = [startEnd[0][1] for i in range(popSize)]
+            RectanglesDead = [False for i in range(popSize)]
 
             # reset steps and increase stepCount
             stepCount += 10
@@ -124,13 +126,23 @@ def Maze_generation():
             list = [-1,0,1]
             RandNum1 = (random.choice(list))
             RandNum2 = (random.choice(list))
-            while RectanglesX[populationCounter] + RandNum1 < 20 or RectanglesX[populationCounter] + RandNum1 > 400:
-                RandNum1 = (random.choice(list))
-            while RectanglesY[populationCounter] + RandNum2 < 20 or RectanglesY[populationCounter] + RandNum2 > 400:
-                RandNum2 = (random.choice(list))
-            RectanglesX[populationCounter] = RectanglesX[populationCounter] + RandNum1
-            RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
+            if RectanglesDead[populationCounter] == False:
+                while RectanglesX[populationCounter] + RandNum1 < 20 or RectanglesX[populationCounter] + RandNum1 > 352:
+                    RandNum1 = (random.choice(list))
+            if RectanglesDead[populationCounter] == False:
+                while RectanglesY[populationCounter] + RandNum2 < 20 or RectanglesY[populationCounter] + RandNum2 > 352:
+                    RandNum2 = (random.choice(list))
+            if RectanglesDead[populationCounter] == False:
+                RectanglesX[populationCounter] = RectanglesX[populationCounter] + RandNum1
+            if RectanglesDead[populationCounter] == False:
+                RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
             
+        # check to see if dots will be colliding with wall
+        # if it is, add it to the dead dot array
+        for populationCounter in range(popSize):
+            # check if wall is where the dot will be
+            if tuple(background.get_at((RectanglesX[populationCounter].astype(np.int64), RectanglesY[populationCounter].astype(np.int64)))) == (255,255,255,255):
+                RectanglesDead[populationCounter] = True
 
         # set background to white, then fill in rectangles following array
         background.fill((255, 255, 255))
@@ -146,5 +158,5 @@ def Maze_generation():
 
 
         pygame.display.flip()
-        time.sleep(.001) # edit to adjust speed
+        time.sleep(.01) # edit to adjust speed
         steps += 1

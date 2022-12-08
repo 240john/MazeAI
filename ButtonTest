@@ -19,7 +19,6 @@ def button(screen, position, text): #constructor
     return screen.blit(text_render, (x, y)) 
  
 def start(): #event for start button
-    # print("Ok, let's go")
     MazeAI.Maze_generation()
  
 def menu():# main loop
