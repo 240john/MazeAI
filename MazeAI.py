@@ -21,7 +21,7 @@ class End(object):
 def Maze_generation():
     gen = 0
     popSize = 60
-    stepCount = 10 # initial amount of steps allowed - increases
+    stepCount = 30 # initial amount of steps allowed - increases
                    # with each generation
     steps = 0 # amount of steps completed per generation
     startEnd = np.empty((2,2))
@@ -47,9 +47,6 @@ def Maze_generation():
         y += 16
         x = 0
 
-    print('start: ', startEnd[0][0], startEnd[0][1])
-    print('end: ', startEnd[1][0], startEnd[1][1])
-
     # two arrays to hold all values of current rectangles, currently values all are 0
     RectanglesX = np.empty(popSize, dtype=int) 
     RectanglesX = [startEnd[0][0] for i in range(popSize)] 
@@ -57,6 +54,10 @@ def Maze_generation():
     RectanglesY = [startEnd[0][1] for i in range(popSize)]
     RectanglesDead = np.empty(popSize, dtype=bool) 
     RectanglesDead = [False for i in range(popSize)]
+    RectanglesFitness = np.empty(stepCount, dtype=int) 
+    RectanglesFitness = [10000 for i in range(popSize)]
+    RectanglesXHistory = np.zeros((popSize, stepCount), dtype=int)
+    RectanglesYHistory = np.zeros((popSize, stepCount), dtype=int)
 
     #array for rectangle colors
     RectanglesColor = np.empty(popSize, dtype=int)
@@ -92,26 +93,72 @@ def Maze_generation():
     while running:
     
         # check to see if it's time to start a new generation
-        if steps == stepCount:
+        if steps == stepCount:           
             # calculate fitness of dots
             # if dot is in collision with a wall fitness = 0
+            for populationCounter in range(popSize):
+                if RectanglesDead[populationCounter] != True:
+                    RectanglesFitness[populationCounter] = np.sqrt((RectanglesX[populationCounter]-startEnd[1][1])**2+(RectanglesX[populationCounter]-startEnd[1][0])**2) # distance formula to calculate fitness
 
-            # save moves made by 5 best dots            
+            # save moves made by 5 best dots
+            # this will keep track of 5 best dots, of which we can find the moves in the
+            lowest = 9999
+            SortedRectangles = np.empty(5, dtype=int)
+            for x in range(0, 5):
+                for populationCounter in range(popSize):
+                    if RectanglesFitness[populationCounter] < lowest:
+                        lowest = populationCounter
+                SortedRectangles[x] = lowest
             
             # reset dots
-            RectanglesX = np.empty(popSize, dtype=int) 
+            RectanglesX = np.empty(popSize, dtype=int)  
             RectanglesX = [startEnd[0][0] for i in range(popSize)] 
             RectanglesY = np.empty(popSize, dtype=int)
             RectanglesY = [startEnd[0][1] for i in range(popSize)]
             RectanglesDead = [False for i in range(popSize)]
 
+            # iterate through the rectangles up to stepCount and mutate based on saved moves
+            for rectangle in SortedRectangles:
+                randomNum = random.randrange(0, 10)
+                if randomNum == 9: # do change a value in the history and all subsequent moves
+                    randomNum2 = random.randrange(0, 2) # decide if we are changing x or y
+                    randomNum3 = random.randrange(0, 2) # decide if we add or subtract one
+
+                    if randomNum2 == 0: # x
+                        if randomNum3 == 0: # add one
+                            for bananas in range(0, popSize):
+                                RectanglesXHistory[bananas][rectangle] += 1
+                        else: # subtract one
+                            for bananas in range(0, popSize):
+                                RectanglesXHistory[bananas][rectangle] -= 1
+                    else: # y
+                        if randomNum3 == 0: # add one
+                            for bananas in range(0, popSize):
+                                RectanglesYHistory[bananas][rectangle] += 1
+                        else: # subtract one
+                            for bananas in range(0, popSize):
+                                RectanglesYHistory[bananas][rectangle] -= 1
+
+            # store mutated values in the dots
+            for dot in SortedRectangles:
+                for populationCounter in range(popSize):
+                    RectanglesX[populationCounter] = RectanglesXHistory[populationCounter][SortedRectangles[dot]]
+                    RectanglesY[populationCounter] = RectanglesYHistory[populationCounter][SortedRectangles[dot]]
+
             # reset steps and increase stepCount
-            stepCount += 10
+            stepCount += 30
             steps = 0
 
-            # mutate the moveset of the dots randomly while iterating through steps
-            
+            # create fresh matrix to store history
+            RectanglesXHistory = np.zeros((popSize, stepCount))
+            RectanglesYHistory = np.zeros((popSize, stepCount))
 
+            # store X and Y 'history'
+            for dot in SortedRectangles:
+                for populationCounter in range(popSize):
+                    RectanglesXHistory[populationCounter][SortedRectangles[dot]] = RectanglesX[populationCounter]
+                    RectanglesYHistory[populationCounter][SortedRectangles[dot]] = RectanglesY[populationCounter]
+            
         # Check for event if user has pushed
         # any event in queue
         for event in pygame.event.get():
@@ -127,15 +174,17 @@ def Maze_generation():
             RandNum1 = (random.choice(list))
             RandNum2 = (random.choice(list))
             if RectanglesDead[populationCounter] == False:
-                while RectanglesX[populationCounter] + RandNum1 < 20 or RectanglesX[populationCounter] + RandNum1 > 352:
+                while RectanglesX[populationCounter] + RandNum1 < 20 or RectanglesY[populationCounter] + RandNum1 > 352:
                     RandNum1 = (random.choice(list))
             if RectanglesDead[populationCounter] == False:
                 while RectanglesY[populationCounter] + RandNum2 < 20 or RectanglesY[populationCounter] + RandNum2 > 352:
                     RandNum2 = (random.choice(list))
             if RectanglesDead[populationCounter] == False:
                 RectanglesX[populationCounter] = RectanglesX[populationCounter] + RandNum1
+                RectanglesXHistory[populationCounter][steps] = RectanglesX[populationCounter] + RandNum1
             if RectanglesDead[populationCounter] == False:
                 RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
+                RectanglesYHistory[populationCounter][steps] = RectanglesY[populationCounter] + RandNum2
             
         # check to see if dots will be colliding with wall
         # if it is, add it to the dead dot array
@@ -150,13 +199,13 @@ def Maze_generation():
             rectangle = ((RectanglesX[populationCounter],RectanglesY[populationCounter]), (4,4))
             pygame.draw.rect(background,(RectanglesColor[populationCounter]),rectangle,2)
 
-        # draw walls
+        # draw walls and end of maze
         for wall in walls:
-            pygame.draw.rect(background, (0, 0, 0), wall.rect)
+            pygame.draw.rect(background, (0, 0, 0, 255), wall.rect)
         for end in ending:
-            pygame.draw.rect(background, (0, 255, 0), end.rect)
+            pygame.draw.rect(background, (0, 255, 150, 255), end.rect)
 
 
         pygame.display.flip()
-        time.sleep(.01) # edit to adjust speed
+        time.sleep(.01) # edit to adjust speed 
         steps += 1
