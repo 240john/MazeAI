@@ -2,7 +2,7 @@ import pygame
 import MazeAI
 
 pygame.init()
-screen = pygame.display.set_mode((700, 400))
+screen = pygame.display.set_mode((700, 500))
 screen.fill((255,255,255))
  
 def button(screen, position, text): # constructor
@@ -10,11 +10,12 @@ def button(screen, position, text): # constructor
     text_render = font.render(text, 1, (255, 0, 0)) # where the text goes
     x, y, w , h = text_render.get_rect() # gets the size of the button
     x, y = position
-    padding = 5
-    pygame.draw.line(screen, "black", (x - padding, y - padding), (x + w +padding, y - padding), 5) #draws the top border
-    pygame.draw.line(screen, "black", (x - padding, y - 2 - padding), (x - padding, y + h + padding), 5) #draws the left border
-    pygame.draw.line(screen, "black", (x - padding, y + h + padding - 2), (x + w + padding , y + h + padding - 2), 5) #draws the bottom boder
-    pygame.draw.line(screen, (50, 50, 50), (x + w + padding - 2, y+h + padding), [x + w + padding - 2, y - padding], 5) #draws the right border
+    xpadding = 10
+    ypadding = 5
+    pygame.draw.line(screen, "black", (x - xpadding, y - ypadding), (x + w + xpadding, y - ypadding), 5) #draws the top border
+    pygame.draw.line(screen, "black", (x - xpadding, y - 2 - ypadding), (x - xpadding, y + h + ypadding), 5) #draws the left border
+    pygame.draw.line(screen, "black", (x - xpadding, y + h + ypadding - 2), (x + w + xpadding , y + h + ypadding - 2), 5) #draws the bottom boder
+    pygame.draw.line(screen, (50, 50, 50), (x + w + xpadding - 2, y + h + ypadding), [x + w + xpadding - 2, y - ypadding], 5) #draws the right border
     pygame.draw.rect(screen, "white", (x, y, w , h)) #draw the button body
     return screen.blit(text_render, (x, y)) 
 
@@ -23,8 +24,9 @@ def start(): #event for start button
  
 def menu(): # main loop
     # This is the menu that waits you to click the s key to start 
-    b1 = button(screen, (100, 100), "Quit") #create the quit button
-    b2 = button(screen, (500, 300), "Start") #create the start button
+    b1 = button(screen, (610, 425), "Quit") #create the quit button
+    b2 = button(screen, (495, 425), "Start") #create the start button
+    b3 = button(screen, (15, 425), "Generate")#create the generate maze button
     while True:
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -39,6 +41,8 @@ def menu(): # main loop
                 if b1.collidepoint(pygame.mouse.get_pos()):
                     pygame.quit()
                 elif b2.collidepoint(pygame.mouse.get_pos()):
+                    start()
+                elif b3.collidepoint(pygame.mouse.get_pos()):
                     start()
         pygame.display.update()
     pygame.quit()
