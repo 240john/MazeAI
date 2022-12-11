@@ -6,6 +6,7 @@ def create_maze():
     level = np.full((22, 22), 'W')
         
     x = randrange(22)
+    startx = x
     y = 0
     endX = randrange(22)
     endY = 21
@@ -42,4 +43,35 @@ def create_maze():
         if y == endY-1 and x == endX:
             foundX = True
 
+    x = 0
+    for x in range(5): # random path generation, this finds (5) random points and paths directly to them, this is optional
+        foundX = False
+        pointx = randrange(1,21)
+        pointy = randrange(1,21)
+        y = 0
+        x1 = startx
+        while not foundX:
+            while True:
+                if randrange(2) == 0:
+                    if x1 < pointx:
+                        num = 1
+                    else:
+                        num = -1
+                    if x1 + num > 0 and x1 + num < 21 and y > 0:
+                        x1 = x1 + num
+                        break
+                else:  
+                    if y < pointy:
+                        num = 1
+                    else:
+                        num = -1
+                    if y + num > 0 and y + num < 21:
+                        y = y + num
+                        break   
+
+            # change the maze
+            level[x1][y] = ' '
+            if y == pointy and x1 == pointx:
+                foundX = True
+                    
     return level

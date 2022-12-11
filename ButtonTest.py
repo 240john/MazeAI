@@ -44,33 +44,50 @@ def button(screen, position, text): # constructor
     return screen.blit(text_render, (x, y)) 
 
 def generate():
-    # Holds the level layout in a list of strings.
+
+    # globals are there so we can reset the variables so we can repopulate them,
+    global walls, ending, empty, level
+    walls = []
+    ending = []
+    empty = []
+    level = ""
+
+#   startEnd = np.empty((2,2))
     level = maze.create_maze()
     offset = 20 # used to bring maze away from edge
-    startEnd = np.empty((2,2))
-    walls = []
-    empty = []
-    ending = []
 
-    # Parse the level string above. W = wall, X = start/exit
-    x = y = 0
+    x = y = 0   # makes an empty array used to clear the maze when regenerating the maze
     for row in level:
         for col in row:
-            if col == "W":
-                Wall((x+offset, y+offset),16)
-            elif col == "S":
-                Empty((x+offset, y+offset),16)
-            elif col == "X":
-                End((x+14+offset,y+offset),2)
-                startEnd[1][0] = x+offset
-                startEnd[1][1] = y+offset
+            Empty((x+offset, y+offset),16)
             x += 16
         y += 16
         x = 0
 
-def start(): #event for start button
-    MazeAI.Maze_generation()
- 
+    # Parse the level string above. W = wall, X = start/exit
+    # this loop puts values in for the final print at the end of the menu function
+    x = y = 0
+    for row in level:
+        for col in row:
+            if col == "W":
+                Wall((x+offset, y+offset),16)   # most of this is commented out, I dont think its necesarry for running
+#            elif col == "S":
+ #             #  Empty((x+offset, y+offset),16)
+  #              startEnd[0][0] = x+offset
+   #             startEnd[0][1] = y+offset
+            elif col == "X":
+                End((x+14+offset,y+offset),2)
+ #               startEnd[1][0] = x+offset
+  #              startEnd[1][1] = y+offset
+            x += 16
+        y += 16
+        x = 0
+
+    return level
+
+def start(level): #event for start button
+    MazeAI.Maze_generation(level)
+
 def menu(): # main loop
     screen.fill((255, 255, 255))
 
@@ -78,6 +95,8 @@ def menu(): # main loop
     b1 = button(screen, (610, 425), "Quit") #create the quit button
     b2 = button(screen, (495, 425), "Start") #create the start button
     b3 = button(screen, (15, 425), "Generate")#create the generate maze button
+
+    genCheck = False # this is necesarry for the conditional statement for b2
     while True:
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -87,20 +106,25 @@ def menu(): # main loop
                     pygame.quit()
                 key_to_start = event.key == pygame.K_s or event.key == pygame.K_RIGHT or event.key == pygame.K_UP
                 if key_to_start:
-                    start()
+                    start(level)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if b1.collidepoint(pygame.mouse.get_pos()):
                     pygame.quit()
-                elif b2.collidepoint(pygame.mouse.get_pos()):
-                    start()
+                elif b2.collidepoint(pygame.mouse.get_pos()): #conditional statement checks if generated map exists
+                    if genCheck == True:
+                        start(level)
+                    else:
+                        level = generate()
+                        start(level)
                 elif b3.collidepoint(pygame.mouse.get_pos()):
-                    generate()
+                    genCheck = True
+                    level = generate()
 
         # draw walls and end of maze
+        for spot in empty: # This is used to clear the already populated maze when regenerating it
+            pygame.draw.rect(screen, (255, 255, 255, 255), spot.rect)
         for wall in walls:
             pygame.draw.rect(screen, (0, 0, 1, 255), wall.rect)
-        for spot in empty:
-            pygame.draw.rect(screen, (255, 255, 255, 255), spot.rect)
         for end in ending:
             pygame.draw.rect(screen, (0, 255, 150, 255), end.rect)
         pygame.display.update()

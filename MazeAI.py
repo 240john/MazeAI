@@ -18,7 +18,7 @@ class End(object):
         ending.append(self)
         self.rect = pygame.Rect(pos[0], pos[1], width, 16)
 
-def Maze_generation():
+def Maze_generation(level):
     gen = 0
     popSize = 60
     stepCount = 30 # initial amount of steps allowed - increases
@@ -28,7 +28,7 @@ def Maze_generation():
     offset = 20 # used to bring maze away from edge
 
     # Holds the level layout in a list of strings.
-    level = maze.create_maze()
+    # level = maze.create_maze()
 
     # Parse the level string above. W = wall, X = start/exit
     x = y = 0
@@ -71,8 +71,8 @@ def Maze_generation():
         RectanglesColor[populationCounter] = RandColorVal
 
     # size of the maze
-    mazeWidth = 800
-    mazeHeight = 800
+    mazeWidth = 700
+    mazeHeight = 500
 
     background = pygame.display.set_mode((mazeWidth,mazeHeight))
 
