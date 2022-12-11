@@ -1,9 +1,33 @@
 import pygame
 import MazeAI
+import maze
+import numpy as np
+import pygame.gfxdraw as  gfx
+
 
 pygame.init()
 screen = pygame.display.set_mode((700, 500))
 screen.fill((255,255,255))
+
+walls = [] # List to hold the walls
+ending = [] # list to hold the end
+empty = [] # list to hold empty tiles
+level = ""
+
+class Wall(object):
+    def __init__(self, pos, width):
+        walls.append(self)
+        self.rect = pygame.Rect(pos[0], pos[1], width, 16)
+
+class Empty(object):
+    def __init__(self, pos, width):
+        empty.append(self)
+        self.rect = pygame.Rect(pos[0], pos[1], width, 16)
+
+class End(object):
+    def __init__(self, pos, width):
+        ending.append(self)
+        self.rect = pygame.Rect(pos[0], pos[1], width, 16)
  
 def button(screen, position, text): # constructor
     font = pygame.font.SysFont("Arial", 50)
@@ -19,10 +43,37 @@ def button(screen, position, text): # constructor
     pygame.draw.rect(screen, "white", (x, y, w , h)) #draw the button body
     return screen.blit(text_render, (x, y)) 
 
+def generate():
+    # Holds the level layout in a list of strings.
+    level = maze.create_maze()
+    offset = 20 # used to bring maze away from edge
+    startEnd = np.empty((2,2))
+    walls = []
+    empty = []
+    ending = []
+
+    # Parse the level string above. W = wall, X = start/exit
+    x = y = 0
+    for row in level:
+        for col in row:
+            if col == "W":
+                Wall((x+offset, y+offset),16)
+            elif col == "S":
+                Empty((x+offset, y+offset),16)
+            elif col == "X":
+                End((x+14+offset,y+offset),2)
+                startEnd[1][0] = x+offset
+                startEnd[1][1] = y+offset
+            x += 16
+        y += 16
+        x = 0
+
 def start(): #event for start button
     MazeAI.Maze_generation()
  
 def menu(): # main loop
+    screen.fill((255, 255, 255))
+
     # This is the menu that waits you to click the s key to start 
     b1 = button(screen, (610, 425), "Quit") #create the quit button
     b2 = button(screen, (495, 425), "Start") #create the start button
@@ -43,7 +94,15 @@ def menu(): # main loop
                 elif b2.collidepoint(pygame.mouse.get_pos()):
                     start()
                 elif b3.collidepoint(pygame.mouse.get_pos()):
-                    start()
+                    generate()
+
+        # draw walls and end of maze
+        for wall in walls:
+            pygame.draw.rect(screen, (0, 0, 1, 255), wall.rect)
+        for spot in empty:
+            pygame.draw.rect(screen, (255, 255, 255, 255), spot.rect)
+        for end in ending:
+            pygame.draw.rect(screen, (0, 255, 150, 255), end.rect)
         pygame.display.update()
     pygame.quit()
  
