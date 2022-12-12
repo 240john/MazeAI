@@ -2,13 +2,14 @@ import numpy as np
 import random
 from random import randrange
 
-def create_maze():
+def create_maze(rseed):
+    random.seed(rseed)
     level = np.full((22, 22), 'W')
         
     x = randrange(22)
     startx = x
     y = 0
-    endX = randrange(22)
+    endX = randrange(1,21) #if endX is 0 everything breaks
     endY = 21
     level[x][y] = 'S'
     level[endX][endY] = 'X'
@@ -34,7 +35,7 @@ def create_maze():
                     num = random.choice(list2)
                 if y + num > 0 and y + num < 21:
                     y = y + num
-                    break   
+                    break
 
         # change the maze
         level[x][y] = ' '

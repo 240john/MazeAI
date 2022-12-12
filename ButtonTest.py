@@ -3,6 +3,7 @@ import MazeAI
 import maze
 import numpy as np
 import pygame.gfxdraw as  gfx
+from random import randrange
 
 
 pygame.init()
@@ -45,16 +46,16 @@ def button(screen, position, text): # constructor
 
 def generate():
 
-    # globals are there so we can reset the variables so we can repopulate them,
-    global walls, ending, empty, level
-    walls = []
-    ending = []
-    empty = []
-    level = ""
-
-#   startEnd = np.empty((2,2))
-    level = maze.create_maze()
+    #generates the random seed for generation
+    global rseed
+    rseed = randrange(1000000)
+    
+    # Holds the level layout in a list of strings.
+    level = maze.create_maze(rseed)
     offset = 20 # used to bring maze away from edge
+    walls.clear()
+    empty.clear()
+    ending.clear()
 
     x = y = 0   # makes an empty array used to clear the maze when regenerating the maze
     for row in level:
@@ -70,15 +71,11 @@ def generate():
     for row in level:
         for col in row:
             if col == "W":
-                Wall((x+offset, y+offset),16)   # most of this is commented out, I dont think its necesarry for running
+                Wall((x+offset, y+offset),16)  
 #            elif col == "S":
  #             #  Empty((x+offset, y+offset),16)
-  #              startEnd[0][0] = x+offset
-   #             startEnd[0][1] = y+offset
             elif col == "X":
                 End((x+14+offset,y+offset),2)
- #               startEnd[1][0] = x+offset
-  #              startEnd[1][1] = y+offset
             x += 16
         y += 16
         x = 0
@@ -87,7 +84,7 @@ def generate():
 
 def start(level): #event for start button
     MazeAI.Maze_generation(level)
-
+ 
 def menu(): # main loop
     screen.fill((255, 255, 255))
 
@@ -114,7 +111,7 @@ def menu(): # main loop
                     if genCheck == True:
                         start(level)
                     else:
-                        level = generate()
+                        level = generate(rseed)
                         start(level)
                 elif b3.collidepoint(pygame.mouse.get_pos()):
                     genCheck = True
