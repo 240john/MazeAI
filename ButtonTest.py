@@ -49,7 +49,7 @@ def generate():
     #generates the random seed for generation
     global rseed
     rseed = randrange(1000000)
-    
+
     # Holds the level layout in a list of strings.
     level = maze.create_maze(rseed)
     offset = 20 # used to bring maze away from edge
@@ -111,7 +111,7 @@ def menu(): # main loop
                     if genCheck == True:
                         start(level)
                     else:
-                        level = generate(rseed)
+                        level = generate()
                         start(level)
                 elif b3.collidepoint(pygame.mouse.get_pos()):
                     genCheck = True

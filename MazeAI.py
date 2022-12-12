@@ -19,13 +19,15 @@ class End(object):
         self.rect = pygame.Rect(pos[0], pos[1], width, 16)
 
 def Maze_generation(level):
-    gen = 0
+    gen = 1 #used as a tracker for display
     popSize = 60
     stepCount = 30 # initial amount of steps allowed - increases
                    # with each generation
     steps = 0 # amount of steps completed per generation
     startEnd = np.empty((2,2))
     offset = 20 # used to bring maze away from edge
+    deathTotal = 0 #used as a tracker for display
+    deadAgents = 0
 
     # Holds the level layout in a list of strings.
     # level = maze.create_maze()
@@ -79,13 +81,16 @@ def Maze_generation(level):
     background.fill((255, 255, 255))
 
     pygame.init()
-    
+    #pygame.font.init()
+
     # displaying a window
     pygame.display.set_mode((mazeWidth, mazeHeight))
     
     # Setting name for window
     pygame.display.set_caption('Maze AI')
     
+    startTime = time.time()
+
     # creating a bool value which checks
     # if game is running
     running = True
@@ -156,6 +161,9 @@ def Maze_generation(level):
             # reset steps and increase stepCount
             stepCount += 30
             steps = 0
+            gen += 1
+            deadAgents = 0
+            deathCheck = False
 
             # add 30 more columns to the matrices to store history
             new_col = RectanglesXHistory.sum(1)[...,None]
@@ -198,7 +206,8 @@ def Maze_generation(level):
                 if RectanglesDead[populationCounter] == False:
                     RectanglesY[populationCounter] = RectanglesY[populationCounter] + RandNum2
                     RectanglesYHistory[populationCounter][steps] = RectanglesY[populationCounter] + RandNum2
-            
+
+        deathCheck = False    
         # check to see if dots will be colliding with wall
         # if it is, add it to the dead dot array
         for populationCounter in range(popSize):
@@ -206,6 +215,11 @@ def Maze_generation(level):
             xy = background.get_at((RectanglesX[populationCounter].astype(np.int64), RectanglesY[populationCounter].astype(np.int64)))
             if xy == (0,0,1,255):
                 RectanglesDead[populationCounter] = True
+                if deathCheck != True:  # for the statistics display
+                    deadAgents = deadAgents + 1
+                    deathTotal = deathTotal + 1
+                    deathCheck = True
+                #break
 
         # set background to white, then fill in rectangles following array
         background.fill((255, 255, 255))
@@ -218,6 +232,38 @@ def Maze_generation(level):
             pygame.draw.rect(background, (0, 0, 1, 255), wall.rect)
         for end in ending:
             pygame.draw.rect(background, (0, 255, 150, 255), end.rect)
+
+
+        currentTime = round((time.time() - startTime), 2)
+
+    #This is all the text displays
+        myFont = pygame.font.SysFont("Times New Roman", 18)
+        stepMaximumTextDisplay = myFont.render("The current step maximum is:", False, (0,0,1,255))
+        stepMaximumVariableDisplay = myFont.render(str(stepCount), False, (0,0,1,255))
+        stepCurrentDisplay = myFont.render("The current step is:", False, (0,0,1,255))
+        stepVariableDisplay = myFont.render(str(steps), False, (0,0,1,255))
+        generationCurrentDisplay = myFont.render("The current generation is:", False, (0,0,1,255))
+        generationVariableDisplay = myFont.render(str(gen), False, (0,0,1,255))
+        TimeCurrentDisplay = myFont.render("Time elapsed (seconds):", False, (0,0,1,255))
+        TimeVariableDisplay = myFont.render(str(currentTime), False, (0,0,1,255))
+        deathCurrentDisplay = myFont.render("Current Dead Agents:", False, (0,0,1,255))
+        deathVariableDisplay = myFont.render(str(deadAgents), False, (0,0,1,255))
+        deathTCurrentDisplay = myFont.render("Total Dead Agents:", False, (0,0,1,255))
+        deathTVariableDisplay = myFont.render(str(deathTotal), False, (0,0,1,255))
+
+    #Displaying the text displays
+        background.blit(stepCurrentDisplay, ((400, 50)))
+        background.blit(stepVariableDisplay, ((550, 50)))
+        background.blit(stepMaximumTextDisplay, ((400, 70)))
+        background.blit(stepMaximumVariableDisplay, ((625, 70)))
+        background.blit(generationCurrentDisplay, ((400, 90)))
+        background.blit(generationVariableDisplay, ((600, 90)))
+        background.blit(TimeCurrentDisplay, ((400, 110)))
+        background.blit(TimeVariableDisplay, ((585, 110)))
+        background.blit(deathCurrentDisplay, ((400, 130)))
+        background.blit(deathVariableDisplay, ((585, 130)))
+        background.blit(deathTCurrentDisplay, ((400, 150)))
+        background.blit(deathTVariableDisplay, ((550, 150)))
 
 
         pygame.display.flip()
