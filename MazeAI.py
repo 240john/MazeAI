@@ -105,7 +105,7 @@ def Maze_generation(level):
             # if dot is in collision with a wall fitness = 0
             for populationCounter in range(popSize):
                 if RectanglesDead[populationCounter] != True:
-                    RectanglesFitness[populationCounter] = np.sqrt((RectanglesX[populationCounter]-startEnd[1][1])**2+(RectanglesY[populationCounter]-startEnd[1][0])**2) # distance formula to calculate fitness
+                    RectanglesFitness[populationCounter] = np.sqrt((RectanglesX[populationCounter]-startEnd[1][0])**2+(RectanglesY[populationCounter]-startEnd[1][1])**2) # distance formula to calculate fitness
 
             # save moves made by 5 best dots
             # this will keep track of 5 best dots, of which we can find the moves in the
