@@ -3,6 +3,7 @@ import MazeAI
 import maze
 import numpy as np
 import pygame.gfxdraw as  gfx
+from random import randrange
 
 
 pygame.init()
@@ -44,13 +45,16 @@ def button(screen, position, text): # constructor
     return screen.blit(text_render, (x, y)) 
 
 def generate():
+    #generates the random seed for generation
+    global rseed
+    rseed = randrange(1000000)
     # Holds the level layout in a list of strings.
-    level = maze.create_maze()
+    level = maze.create_maze(rseed)
     offset = 20 # used to bring maze away from edge
     startEnd = np.empty((2,2))
-    walls = []
-    empty = []
-    ending = []
+    walls.clear()
+    empty.clear()
+    ending.clear()
 
     # Parse the level string above. W = wall, X = start/exit
     x = y = 0
@@ -58,7 +62,7 @@ def generate():
         for col in row:
             if col == "W":
                 Wall((x+offset, y+offset),16)
-            elif col == "S":
+            elif col == " "  or col == "S":
                 Empty((x+offset, y+offset),16)
             elif col == "X":
                 End((x+14+offset,y+offset),2)
@@ -69,7 +73,7 @@ def generate():
         x = 0
 
 def start(): #event for start button
-    MazeAI.Maze_generation()
+    MazeAI.Maze_generation(rseed)
  
 def menu(): # main loop
     screen.fill((255, 255, 255))

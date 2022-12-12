@@ -2,7 +2,8 @@ import numpy as np
 import random
 from random import randrange
 
-def create_maze():
+def create_maze(rseed):
+    random.seed(rseed)
     level = np.full((22, 22), 'W')
         
     x = randrange(22)
